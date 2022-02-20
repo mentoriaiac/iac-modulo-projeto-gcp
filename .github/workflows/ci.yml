@@ -30,4 +30,4 @@ jobs:
 
       - name: Terraform Test
         id: test
-        run: make test    
+        run: make test
