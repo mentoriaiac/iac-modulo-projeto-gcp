@@ -1,58 +1,72 @@
-##  Template Modulo Terraform
-Este repositorio deve conter a estrutura básica para a criação de uma modulo do [terraform](https://www.terraform.io/). 
-
- $`` module-example/``
- 
- |--- main.tf  
- |--- variable.tf  
- |--- outputs.tf  
- |--- version.tf
+# IAC Modulo Projeto GCP
 
 
- Esses são os nomes de arquivos recomendados para um modulo mínimo, mesmo se estiverem vazios. 
- 
- ``main.tf`` deve ser o ponto de entrada principal.
- Para um modulo simples, pode ser aqui que todos os recursos que são criados. Para uma modulo complexo pode ser divido em varios arquivos.
- 
- ``variables.tf e outputs.tf`` deve conter as declarações das variaves e as saidas respectivamente.
- 
- ``versions.tf`` deve contem as versões dos recursos/provedores
+## Passo-a-passo para criar uma service account para o Terraform
 
+- [Instalação do gcloud](https://cloud.google.com/sdk/docs/install#installation_instructions)
+- [Tutorial](https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform)
+
+```sh
+export TF_ADMIN=terraform-user-abcqw
+export TF_CREDS=~/.config/gcloud/terraform-user.json
+
+#export TF_VAR_org_id=YOUR_ORG_ID # `gcloud organizations list`
+#export TF_VAR_billing_account=YOUR_BILLING_ACCOUNT_ID # `gcloud beta billing accounts list`
+
+export TF_VAR_org_id=${YOUR_ORG_ID}
+export TF_VAR_billing_account=YOUR_BILLING_ACCOUNT_ID
+
+gcloud projects create ${TF_ADMIN} \
+  --organization ${TF_VAR_org_id} \
+  --set-as-default
+
+gcloud iam service-accounts create terraform \
+  --display-name "Terraform admin account"
+
+gcloud iam service-accounts keys create ${TF_CREDS} \
+  --iam-account terraform@${TF_ADMIN}.iam.gserviceaccount.com  
+```
+
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| Terraform | >= 0.13.0 |
+| terraform | >= 0.13.0 |
+| google | 3.81.0 |
 
 ## Providers
-  
+
 | Name | Version |
 |------|---------|
-| local | n/a |
+| google | 3.81.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| local_file | resource |
-| local_file | data source |
+| [google_billing_account.acct](https://registry.terraform.io/providers/hashicorp/google/3.81.0/docs/data-sources/billing_account) | data source |
+| [google_organization.org](https://registry.terraform.io/providers/hashicorp/google/3.81.0/docs/data-sources/organization) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-|ferramenta_1 | exemplo de variavel | `string` | `"terraform"` | no |
-|ferramenta_2 | exemplo de variavel | `string` | `"ansible"` | no |
-|programa | exemplo de variavel | `string` | `"mentoria-iac"` | no |
+| google\_billing\_account\_display\_name | The display name of the billing account. | `string` | n/a | yes |
+| google\_organization\_domain\_name | The domain name of the Organization. | `string` | n/a | yes |
+| google\_project\_name | The name of the project. | `string` | n/a | yes |
+| activate\_apis | Lista das apis que serão ativadas no projeto do GCP. | `list(string)` | `[]` | no |
 
 ## Outputs
- 
+
 | Name | Description |
 |------|-------------|
-|ferramentas | exemplo de saida |
-
+| google\_billing\_account | n/a |
+| google\_org\_id | n/a |
+| project\_id | n/a |
+| project\_name | n/a |
+| project\_number | n/a |
+<!-- END_TF_DOCS -->
 ## Testar localmente
 
-Aqui você descreve como a pessoa que utilizar esse módulo pode testar localmente. Coloque todos os detalhes necessários para executar localmente.
-
-  
+Para testar o modulo localmente, você pode executar um `make test`.
